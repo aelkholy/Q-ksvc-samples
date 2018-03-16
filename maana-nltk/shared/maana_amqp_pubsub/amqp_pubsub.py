@@ -10,6 +10,8 @@ class AmqpPubSub:
 
         self.trigger_transform = trigger_transform
 
+        #self.loop = loop
+
         self.config = config
 
         factory = AMQPConnectionFactory(config)
@@ -32,8 +34,7 @@ class AmqpPubSub:
         else:
             disposer = asyncio.ensure_future(self.consumer.subscribe(
                 QueueConfig(trigger_name, self.config.service),
-                lambda msg: self.on_message(trigger_name, msg),
-                self.current_sub_id
+                lambda msg: self.on_message(trigger_name, msg)
             ))
             if trigger_name in self.subs_ref_map.keys():
                 self.subs_ref_map[trigger_name] = self.subs_ref_map[trigger_name].append(self.current_sub_id)

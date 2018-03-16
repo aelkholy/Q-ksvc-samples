@@ -107,6 +107,31 @@ kindId
     }
   """
 
+LinkDetailsFragment = """
+    id
+    relation {
+      id
+    }
+    fromKind {
+      id
+    }
+    toKind {
+      id
+    }
+    fromInstance {
+      id
+    }
+    toInstance {
+      id
+    }
+    name
+    weight
+    fromOffset
+    fromSpan
+    toOffset
+    toSpan
+"""
+
 
 class KindDBSvc:
 
@@ -163,7 +188,10 @@ class KindDBSvc:
         else:
             pass
 
-    def __init__(self, tenantId, svcUrl = KINDDB_SERVICE_URL):
+    def __init__(self, tenantId, loop, svcUrl = KINDDB_SERVICE_URL):
+
+        self.loop = loop
+
         if tenantId is None or len(str(tenantId).strip()) == 0:
             raise ValueError("Missing argument: tenantId")
         else:
@@ -175,7 +203,10 @@ class KindDBSvc:
             self.svcUrl = svcUrl
 
         self.headers = {"Content-Type": "application/json"}
-        self.session = aiohttp.ClientSession()
+        try:
+            self.session = aiohttp.ClientSession(loop=loop)
+        except Exception as e:
+            print(e)
 
     async def getKind(self, kindId, kindName):
         query = string.Template(
@@ -238,6 +269,27 @@ class KindDBSvc:
         }
         to_post = {
             "query": query.safe_substitute(instanceDetailsFragment=InstanceDetailsFragment),
+            "variables": variables
+        }
+        resp = await self.session.post(self.svcUrl, data=json.dumps(to_post), headers=self.headers)
+        out = await resp.json()
+        self._check_response(out)
+        return out["data"]
+
+    async def getLink(self, linkId):
+        query = string.Template("""
+            query($tenantId: ID!, $id: ID!) {
+                link(tenantId: $tenantId, id: $id) {
+                  $linkDetailsFragment
+                }
+              }
+        """)
+        variables = {
+            "tenantId": self.tenantId,
+            "$id": linkId
+        }
+        to_post = {
+            "query": query.safe_substitute(linkDetailsFragment=LinkDetailsFragment),
             "variables": variables
         }
         resp = await self.session.post(self.svcUrl, data=json.dumps(to_post), headers=self.headers)

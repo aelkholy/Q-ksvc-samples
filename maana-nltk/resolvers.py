@@ -1,9 +1,14 @@
 import os
 import uuid
+import json
+from nltk.tokenize import sent_tokenize
 import schema
+import asyncio
 from shared.kinddbsvc.KindDBSvc import KindDBSvc
 
-kindDB = KindDBSvc(0, os.getenv('KINDDB_SERVICE_URL', 'http://localhost:8008/graphql'))
+kindDB = KindDBSvc(0, asyncio.get_event_loop(), os.getenv('KINDDB_SERVICE_URL', 'http://localhost:8008/graphql'))
+
+# Resolvers
 
 
 def info():
@@ -41,3 +46,31 @@ async def add_sentence(sentence):
     )
 
     return new_sentence
+
+# Handlers
+
+async def handle(event):
+
+    parsed_event = json.loads(event)
+
+    if "linkAdded" in parsed_event.keys():
+        return await handle_file(parsed_event)
+
+
+async def handle_file(blob):
+
+    link_added = blob["linkAdded"]
+    link_id = link_added["id"]
+
+    link = await kindDB.getLink(link_id)
+    kind = await kindDB.getAllInstances(kindId=link["linkId"])
+    base = kind.get("allInstances")
+
+    for r in base.get("records"):
+        s_id = r[0].get("ID")
+        text = r[1].get("STRING")
+        sentences = sent_tokenize(text)
+        for s in sentences:
+            add_sentence(schema.Sentence(id=s_id, text=s))
+
+    return None

@@ -1,6 +1,5 @@
 import graphene
 import resolvers
-import handlers
 
 
 class Info(graphene.ObjectType):
@@ -31,7 +30,7 @@ class Query(graphene.ObjectType):
 
 class AddSentenceInput(graphene.InputObjectType):
     id = graphene.ID()
-    sentence = graphene.String(required=True)
+    text = graphene.String(required=True)
 
 
 class AddSentence(graphene.Mutation):
@@ -49,18 +48,4 @@ class Mutation(graphene.ObjectType):
     add_sentence = AddSentence.Field()
 
 
-class FileAdded(graphene.ObjectType):
-    id = graphene.String()
-    name = graphene.String()
-    mimeType = graphene.String()
-    size = graphene.Int()
-
-
-class Subscription(graphene.ObjectType):
-    fileAdded = graphene.Field(FileAdded)
-
-    def resolve_fileAdded(self, _, x):
-        return handlers.handle_file(x)
-
-
-schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)
+schema = graphene.Schema(query=Query, mutation=Mutation)
