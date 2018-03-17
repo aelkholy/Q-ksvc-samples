@@ -28,11 +28,11 @@ python server.py
 
 Adds a sentence:
     ```
-    curl -XPOST http://localhost:7357/graphql -H 'Content-Type: application/json' -d '{"query": "mutation M { addSentence: addEmployee(id: \"asdf\", text: \"bob is awesome\") { id } }"}'
+    curl -XPOST http://localhost:7357/graphql -H 'Content-Type: application/json' -d '{"query": "mutation { addSentence(input:{id: \"1\", text: \"this is a sentence\"}) { id } }"}'
     ```
 
 Gets all sentences:
     ```
     curl -X POST -H "Content-Type: application/json" -d '{ "query": "{ allSentences { text } }" }' http://localhost:7357/graphql
 
-This will also automatically parse a the first columne of a file added for text and add sentences using NLTK. Drop a text file into Maana with loader running and see what happens!
+This will also automatically parse a the first column of a csv added for text and add sentences using NLTK. Drop a csv where the first column is just text, and it will parse through it all and add them to the sentences kind!

@@ -41,7 +41,7 @@ async def add_sentence(sentence):
         "Sentence",
         {
             "id": new_sentence.id,
-            "name": new_sentence.text
+            "text": new_sentence.text
         }
     )
 
@@ -73,5 +73,6 @@ async def handle_file(blob):
         sentences = sent_tokenize(text)
         for s in sentences:
             await add_sentence({"id": s_id, "text": s})
+            print("Added sentence: " + s)
 
     return None

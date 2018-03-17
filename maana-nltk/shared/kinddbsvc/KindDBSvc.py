@@ -351,6 +351,7 @@ class KindDBSvc:
             kind = await self.getKind(kindId=None, kindName=kindName)
             input = self._object_to_addInstanceInput(kind, instance)
             return await self.addInstance(input)
-        except:
+        except Exception as e:
+            print(e)
             print("Unable to get kind {} ".format(kindName))
             return None
