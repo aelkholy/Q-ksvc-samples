@@ -66,7 +66,7 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(
     asyncio.gather(
         asyncio.ensure_future(init(loop)),
-        asyncio.ensure_future(amqp_pubsub.AmqpPubSub(configuration.AmqpConnectionConfig("127.0.0.1", "5672", "MPT")).subscribe("fileAdded", lambda x: handle_event(x)))
+        asyncio.ensure_future(amqp_pubsub.AmqpPubSub(configuration.AmqpConnectionConfig("127.0.0.1", "5672", "MPT")).subscribe("linkAdded", lambda x: handle_event(x)))
     )
 )
 try:

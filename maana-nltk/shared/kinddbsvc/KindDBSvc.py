@@ -286,7 +286,7 @@ class KindDBSvc:
         """)
         variables = {
             "tenantId": self.tenantId,
-            "$id": linkId
+            "id": linkId
         }
         to_post = {
             "query": query.safe_substitute(linkDetailsFragment=LinkDetailsFragment),
@@ -347,6 +347,10 @@ class KindDBSvc:
         return out["data"]
 
     async def addInstanceByKindName(self, kindName, instance):
-        kind = await self.getKind(kindId=None, kindName=kindName)
-        input = self._object_to_addInstanceInput(kind, instance)
-        return await self.addInstance(input)
+        try:
+            kind = await self.getKind(kindId=None, kindName=kindName)
+            input = self._object_to_addInstanceInput(kind, instance)
+            return await self.addInstance(input)
+        except:
+            print("Unable to get kind {} ".format(kindName))
+            return None

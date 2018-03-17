@@ -38,7 +38,7 @@ async def sentence(input):
 async def add_sentence(sentence):
     new_sentence = schema.Sentence(id=sentence.get("id", str(uuid.uuid4())), text=sentence.get("text"))
     await kindDB.addInstanceByKindName(
-        "Employee",
+        "Sentence",
         {
             "id": new_sentence.id,
             "name": new_sentence.text
@@ -63,7 +63,8 @@ async def handle_file(blob):
     link_id = link_added["id"]
 
     link = await kindDB.getLink(link_id)
-    kind = await kindDB.getAllInstances(kindId=link["linkId"])
+    print(json.dumps(link))
+    kind = await kindDB.getAllInstances(kindId=link["link"]["toInstance"]["id"])  # the instance id of Kind, aka the kindId
     base = kind.get("allInstances")
 
     for r in base.get("records"):
@@ -71,6 +72,6 @@ async def handle_file(blob):
         text = r[1].get("STRING")
         sentences = sent_tokenize(text)
         for s in sentences:
-            add_sentence(schema.Sentence(id=s_id, text=s))
+            await add_sentence({"id": s_id, "text": s})
 
     return None
